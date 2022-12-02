@@ -7,12 +7,53 @@ using NoteSystemApi.Models;
 using NoteSystemApi.Repositories;
 using NoteSystemApi.Services;
 using System.Net;
+using System.Text.Json;
+
 
 namespace NoteSystemApi.Controllers
 {
 
     public class HomeController : Controller
     {
+
+        [HttpGet]
+        [Route("/users")]
+        [Authorize]
+        public ActionResult<dynamic> GetUsers()
+        {
+            UserRepository.initUsers();
+            var aux = UserRepository.userList;
+            return JsonSerializer.Serialize(aux);
+        }
+
+
+        [HttpGet]
+        [Route("/results")]
+        [Authorize]
+        public ActionResult<dynamic> GetResults()
+        {
+            var aux = new List<Note>();
+            foreach(var x in NoteRepository.notes)
+            {
+                aux.Add(new Note(x.Key, x.Value / UserRepository.userList.Count, (6033 / UserRepository.userList.Count) * x.Value / UserRepository.userList.Count));
+            }
+
+            return JsonSerializer.Serialize(aux);
+        }
+        [HttpPost]
+        [Route("/results")]
+        [Authorize]
+        public ActionResult<dynamic> AddResults([FromBody]Result result)
+        {
+            foreach(var x in result.users)
+            {
+                NoteRepository.SetNote(x.Name, x.Note);
+            }
+            return JsonSerializer.Serialize(NoteRepository.notes);
+        }
+
+
+
         [HttpPost]
         [Route("login")]
         public ActionResult<dynamic> Authenticate([FromBody] User model)
@@ -24,10 +65,10 @@ namespace NoteSystemApi.Controllers
 
 
             var token = TokenService.GenerateToken(user);
-            user.Code = "";
+            var axUser = new User(user.Name, user.Note, "");
             return new
             {
-                user,
+                axUser,
                 token
             };
         }

@@ -53,8 +53,10 @@ export default {
             }
            }).then(x => {
             localStorage.setItem("token", x.data["token"])
-            this.$router.push("/")
-           }).catch(e => console.log(e))
+            this.toMain();
+           }).catch(e => console.log(e)).finally(y => {
+            console.log(y)
+           })
         }
     }
 }

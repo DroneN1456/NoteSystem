@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using NoteSystemApi;
 using System.Text;
+using NoteSystemApi.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
