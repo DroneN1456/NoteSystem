@@ -11,7 +11,7 @@
                                         <span class="h3" style="font-family:'montserrat'">Entre com seu código único</span>
                                     </div>
                                     <div class="form-outline d-flex align-items-center justify-content-center">
-                                        <input type="text" placeholder="xxxxxx" id="codeInput" class="form-control form-control-lg inputShadow" v-model="code"/>
+                                        <input type="text" style="font-family:'montserrat'" placeholder="xxxxxx" id="codeInput" class="form-control form-control-lg inputShadow" v-model="code"/>
                                         <button style="font-family:'montserrat'" class="btn btn-success bi-check inputShadow m-2" @click="checkCode
                                         "></button>
                                     </div>
@@ -29,6 +29,7 @@
     </div>
 </template>
 <script>
+import axios from 'axios'
 let codes = [
     {"name": "larissa", "code": "120b9jk9k", "used": false},
     {"name": "marcos", "code": "12556616", "used": false},
@@ -42,13 +43,18 @@ export default {
     }
    },
     methods:{
+        toMain(){
+        this.$router.push("/")
+    },
         checkCode(){
-           codes.forEach(x => {
-            if(this.code == x.code && !x.used){
-                x.used = true;
-                this.$router.push('/main')
+           axios.post("https://localhost:7064/login", {name: "", note: 0, code: this.code}, {
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
             }
-           })
+           }).then(x => {
+            localStorage.setItem("token", x.data["token"])
+            this.$router.push("/")
+           }).catch(e => console.log(e))
         }
     }
 }

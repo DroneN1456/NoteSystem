@@ -9,8 +9,7 @@ import 'bootstrap'
 
 
 const routes = [
-    { path: "/", redirect:'/login'},
-    { path: "/main", component: Main},
+    { path: "/", component: Main},
     { path: "/login", component: Login}
 ]
 
