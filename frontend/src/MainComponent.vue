@@ -26,8 +26,8 @@
                                     </div>
                                     <div class="col col-9">
                                         <input type="number" id="notaInput" placeholder="0.0"
-                                            class="form-control form-control-lg" min="0" max="10"
-                                            v-model="currentNota" />
+                                            class="form-control form-control-lg" min="1" max="10"
+                                            v-model="currentNota" @keypress="enterHanlder"/>
                                     </div>
                                 </div>
                                 <div class="row d-flex justify-content-start align-items-center">
@@ -36,7 +36,7 @@
                                     </div>
                                     <div class="col col-9">
                                         <input type="text" id="motivoInput" placeholder="Porque ele..."
-                                            class="form-control form-control-lg" />
+                                            class="form-control form-control-lg " @keypress="enterHanlder" />
                                     </div>
 
                                 </div>
@@ -72,36 +72,57 @@ export default {
         }
     },
     methods: {
+        enterHanlder(e){
+            if(e.key == "Enter"){
+                this.nextPerson()
+            }
+        },
         toLogin() {
             this.$router.push("/login")
         },
         setActualPerson() {
             this.currentName = this.users[this.currentUser].Name;
             this.currentNota = this.users[this.currentUser].Note;
+            var userName = localStorage.getItem("username")
+            if(userName == this.currentName){
+                this.nextPerson();
+            }
         },
         nextPerson() {
             var token = localStorage.getItem("token")
-            if (this.currentUser + 1 == this.users.length) {
-                axios.post("https://localhost:7064/results", {
+            var userName = localStorage.getItem("username")
+            if(userName == this.currentName){
+                this.currentUser++;
+                this.setActualPerson();
+                return;
+            }
+            if (this.currentUser+1 >= this.users.length) {
+                axios.post("http//179.189.18.106:5034/results", {
                     users: this.users
                 }, {
                     headers: {
                         "Authorization": `Bearer ${token}`
                     }
                 }).catch(e => {
-                    console.log(e)
+                    alert(e)
+                    alert(token)
                     this.toLogin()
                 }).then(x => {
                     console.log(x)
+                    this.$router.push("/results")
                 })
             }
 
 
 
             //call api setting current person
-            this.users[this.currentUser].nota = this.currentNota;
+            this.users[this.currentUser].Note = this.currentNota;
+            if(this.users[this.currentUser].Note > 10){
+                this.users[this.currentUser].Note = 10
+            }else if(this.users[this.currentUser].Note < 0){
+                this.users[this.currentUser].Note = 0
+            }
 
-            console.log(this.users);
 
             //change to the next person in list
             this.currentUser++;
@@ -110,22 +131,26 @@ export default {
         }
     },
     mounted() {
-        console.log("hi")
         var token = localStorage.getItem("token")
 
-        axios.get("https://localhost:7064/users", {
+       setTimeout(() => {
+        axios.get("http//179.189.18.106:5034/users", {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
         }).then(x => x.data.forEach(xy => {
             this.users.push(xy)
         })).catch(e => {
-            console.log(e)
-            this.$router.push('/login')
+            alert(e)
+            setTimeout(() => {
+                this.$router.push('/login')
+            }, 2000);
         }).finally(x => {
             console.log(x)
             this.setActualPerson()
         })
+        
+       }, 1000);
 
     },
 }

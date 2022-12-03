@@ -5,7 +5,7 @@ namespace NoteSystemApi.Repositories
     public static class NoteRepository
     {
         public static Dictionary<string, double> notes= new Dictionary<string, double>();
-        private static void InitNotes()
+        public static void InitNotes()
         {
             var path = @"./Data/notes.json";
             var json = File.ReadAllText(path);

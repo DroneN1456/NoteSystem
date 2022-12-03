@@ -22,6 +22,7 @@ body{
   background: radial-gradient(circle, rgba(53,129,249,1) 0%, rgba(69,73,255,1) 100%);
   background-repeat: no-repeat;
   background-size: 100%;
+  height: 100%;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

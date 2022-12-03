@@ -29,13 +29,24 @@ namespace NoteSystemApi.Controllers
 
         [HttpGet]
         [Route("/results")]
-        [Authorize]
         public ActionResult<dynamic> GetResults()
         {
+            NoteRepository.InitNotes();
             var aux = new List<Note>();
             foreach(var x in NoteRepository.notes)
             {
-                aux.Add(new Note(x.Key, x.Value / UserRepository.userList.Count, (6033 / UserRepository.userList.Count) * x.Value / UserRepository.userList.Count));
+               int totalUsers = UserRepository.userList.Count;
+               double totalNotas = NoteRepository.notes.Sum(x => x.Value) / UserRepository.votted;
+               double totalValue = 6033;
+               double indvValue = 0;
+               if(totalNotas > 0){
+                indvValue = (x.Value / UserRepository.votted) * (totalValue /totalNotas);
+               }
+               
+               aux.Add(new Note(x.Key, x.Value / UserRepository.votted, indvValue));
+            }
+            if(UserRepository.votted <= 0){
+                return new List<Note>();
             }
 
             return JsonSerializer.Serialize(aux);
@@ -49,6 +60,7 @@ namespace NoteSystemApi.Controllers
             {
                 NoteRepository.SetNote(x.Name, x.Note);
             }
+            UserRepository.votted++;
             return JsonSerializer.Serialize(NoteRepository.notes);
         }
 
@@ -60,15 +72,18 @@ namespace NoteSystemApi.Controllers
         {
             var user = UserRepository.Get(model.Name, model.Code);
             if (user == null)
-                return NotFound(new {message = "usuario/senha incorretos"});
+                return NotFound(new {message = "Código inexistente"});
+            if(user.CodeStatus == 1){
+                return NotFound(new {message = "Código já foi usado"});
+            }
 
 
 
             var token = TokenService.GenerateToken(user);
-            var axUser = new User(user.Name, user.Note, "");
+            user.CodeStatus = 1;
             return new
             {
-                axUser,
+                user.Name,
                 token
             };
         }

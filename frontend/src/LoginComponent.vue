@@ -47,15 +47,20 @@ export default {
         this.$router.push("/")
     },
         checkCode(){
-           axios.post("https://localhost:7064/login", {name: "", note: 0, code: this.code}, {
+           axios.post("http//179.189.18.106:5034/login", {name: "", note: 0, code: this.code, codestatus: 0}, {
             headers: {
                 "Content-Type": "application/json; charset=utf-8"
             }
            }).then(x => {
+            alert(x)
             localStorage.setItem("token", x.data["token"])
-            this.toMain();
-           }).catch(e => console.log(e)).finally(y => {
+            localStorage.setItem("username", x.data["name"])
+           }).catch(e => alert(e)).finally(y => {
             console.log(y)
+           }).finally(y => {
+            console.log(y)
+            console.log("loggado!")
+            this.toMain();
            })
         }
     }
